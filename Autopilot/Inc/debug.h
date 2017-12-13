@@ -26,6 +26,12 @@ extern "C" {
     printf(fmt "\r\n", ## __VA_ARGS__); \
     xTaskResumeAll(); \
     }
+#define debugCmd(cmd) { \
+    vTaskSuspendAll(); \
+    printf(cmd); \
+    printf("\r\n"); \
+    xTaskResumeAll(); \
+    }
 #else
 #define debug(fmt, ...)
 #endif /* DEBUG */
@@ -33,5 +39,13 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+extern SemaphoreHandle_t debugSemaphoreHandle;
+uint8_t ReceiveQueue[256];
+uint8_t ReceiveQueuePointer;
+
+// Prototypes
+void ReceiveDbgCmd(void);
+void ProcessDbgCmd(char *cmd);
 
 #endif /* DEBUG_H */

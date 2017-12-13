@@ -139,13 +139,6 @@ int main(void)
   Interchip_StoA_Packet* dataRX = malloc(sizeof(Interchip_StoA_Packet));
   Interchip_AtoS_Packet* dataTX = malloc(sizeof(Interchip_AtoS_Packet));
   interchipInit(dataTX, dataRX);
-
-  while(1){
-
-    Interchip_Update();
-    HAL_Delay(2);
-    debug("PWM[0]: %d", dataRX->PWM[0]);
-  }
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

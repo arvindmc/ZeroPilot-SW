@@ -53,13 +53,18 @@
 
 /* USER CODE BEGIN Includes */
 #include "debug.h"
+#include "eeprom.h"
+#include "Interchip_A.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
-
+extern uint8_t ReceiveQueue[];
+//extern uint8_t ReceiveQueuePointer;
+osThreadId debugTaskHandle;
+SemaphoreHandle_t debugSemaphoreHandle;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -68,7 +73,7 @@ void StartDefaultTask(void const * argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
-
+void StartDebugTask(void const *args);
 /* USER CODE END FunctionPrototypes */
 
 /* Hook prototypes */
@@ -86,6 +91,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
+  debugSemaphoreHandle = xSemaphoreCreateBinary();
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
@@ -112,14 +118,28 @@ void StartDefaultTask(void const * argument)
 
   /* USER CODE BEGIN StartDefaultTask */
   // this function will (eventually) start all the threads for the autopilot
+  osThreadDef(debugTask, StartDebugTask, osPriorityNormal, 0, 512);
+  debugTaskHandle = osThreadCreate(osThread(debugTask), NULL);
 
+
+  while (1) {
+    Interchip_Update();
+    HAL_Delay(2);
+//    debug("PWM[0]: %d", dataRX->PWM[0]);
+  }
   
   vTaskDelete(defaultTaskHandle); // delete task when finished
   /* USER CODE END StartDefaultTask */
 }
 
 /* USER CODE BEGIN Application */
-
+void StartDebugTask(void const *args) {
+  while (1) {
+    HAL_UART_Transmit(&huart3, "~$ ", 3, 0xFF);
+    ReceiveDbgCmd();
+    ProcessDbgCmd((char*)ReceiveQueue);
+  }
+}
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

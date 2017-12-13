@@ -55,15 +55,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
+#include "cmsis_os.h"
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "ByteQueue.h"
 
-extern ByteQueue uart1_rx;
-extern ByteQueue uart2_rx;
-extern ByteQueue uart3_rx;
-extern ByteQueue uart4_rx;
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart4;
@@ -72,7 +68,7 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
-
+extern SemaphoreHandle_t debugSemaphoreHandle;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
@@ -83,7 +79,7 @@ void MX_USART2_UART_Init(void);
 void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

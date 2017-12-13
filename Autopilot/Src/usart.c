@@ -53,10 +53,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-ByteQueue uart1_rx;
-ByteQueue uart2_rx;
-ByteQueue uart3_rx;
-ByteQueue uart4_rx;
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -379,7 +376,22 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief Rx Transfer completed callbacks
+  * @param huart: uart handle
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  BaseType_t xHigherPriorityTaskWoken;
 
+  if (huart == &huart3) {
+    // give semaphore to unblock debug task
+    xSemaphoreGiveFromISR(debugSemaphoreHandle, &xHigherPriorityTaskWoken);
+    // request context switch (if necessary)
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
+}
 /* USER CODE END 1 */
 
 /**
